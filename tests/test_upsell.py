@@ -112,3 +112,59 @@ def test_category_group_classifies_known_category_keywords():
     assert category_group("led-lampen") == "lighting_indoor"
     assert category_group("smart-home-starter-kits-gateways") == "hub"
     assert category_group("some-unmapped-category") == "other"
+
+
+def _lighting_anchor() -> Product:
+    return Product(
+        id="anchor-1",
+        title="Philips Hue White E27 Lampe",
+        brand="Philips Hue",
+        category="led-lampen",
+        url="https://x/anchor",
+        is_smart=True,
+        is_smart_confidence=Confidence.DECLARED,
+        ecosystems={Ecosystem.ALEXA: EcosystemSignal(Confidence.DECLARED, "title")},
+        hub_required=False,
+        hub_required_confidence=Confidence.DECLARED,
+    )
+
+
+def _switch_candidate(product_id: str, title: str) -> Product:
+    return Product(
+        id=product_id,
+        title=title,
+        brand="Philips Hue",
+        category="smart-home-schalter",
+        url=f"https://x/{product_id}",
+        is_smart=True,
+        is_smart_confidence=Confidence.DECLARED,
+        ecosystems={Ecosystem.ALEXA: EcosystemSignal(Confidence.DECLARED, "title")},
+        hub_required=False,
+        hub_required_confidence=Confidence.DECLARED,
+    )
+
+
+def test_companion_offer_tiebreak_prefers_more_title_overlap_over_alphabetical_id():
+    """candidate_b shares one more title word with the anchor than
+    candidate_a does, but sorts AFTER it alphabetically -- proves the
+    tiebreak is no longer `min(candidates, key=lambda p: p.id)`."""
+    anchor = _lighting_anchor()
+    candidate_a = _switch_candidate("aaa-less-overlap", "Philips Hue Dimmer Schalter")
+    candidate_b = _switch_candidate("zzz-more-overlap", "Philips Hue White Schalter")
+    catalog = {p.id: p for p in (anchor, candidate_a, candidate_b)}
+
+    result = suggest_upsell(catalog, anchor.id, ecosystem=Ecosystem.ALEXA)
+
+    assert result["offer_type"] == "companion"
+    assert result["offer"]["id"] == "zzz-more-overlap"
+
+
+def test_companion_offer_tiebreak_falls_back_to_id_on_equal_title_overlap():
+    anchor = _lighting_anchor()
+    candidate_a = _switch_candidate("aaa-tied", "Philips Hue Smart Schalter")
+    candidate_b = _switch_candidate("zzz-tied", "Philips Hue Smart Schalter")
+    catalog = {p.id: p for p in (anchor, candidate_a, candidate_b)}
+
+    result = suggest_upsell(catalog, anchor.id, ecosystem=Ecosystem.ALEXA)
+
+    assert result["offer"]["id"] == "aaa-tied"

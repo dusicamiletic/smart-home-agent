@@ -157,6 +157,16 @@ def _completion_offer(
     return None
 
 
+def _title_overlap(a_title: str, b_title: str) -> int:
+    """Word-overlap between two titles, used only to break a tie among
+    otherwise equally-valid companion candidates -- never price or
+    margin, which this codebase deliberately never ranks upsells by
+    (README, docs/decisions.md). Case-insensitive, whole-word, no
+    stemming: a cheap, honest signal for "closer product line", not a
+    claim of real similarity scoring."""
+    return len(set(a_title.lower().split()) & set(b_title.lower().split()))
+
+
 def _companion_offer(
     anchor: Product,
     catalog: dict[str, Product],
@@ -190,7 +200,9 @@ def _companion_offer(
 
     if not candidates:
         return None
-    chosen = min(candidates, key=lambda p: p.id)
+    # Most title-word overlap with the anchor wins; product id only
+    # breaks a genuine tie, so the result is still deterministic.
+    chosen = min(candidates, key=lambda p: (-_title_overlap(anchor.title, p.title), p.id))
     return _offer_dict(
         "companion",
         chosen.id,
