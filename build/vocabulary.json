@@ -1,0 +1,15 @@
+{
+  "_generated_by": "manual judgement call, w05, against scripts/census.py output over the real 943 products",
+  "_note": "A section header consumes no key/value slot -- everything after it, up to the next header, alternates key then value. Verified structurally, not just by frequency: e.g. 'Weiterführende Produktinformationen' appears twice in one blob on 682/943 products, each time opening a fresh key/value run.",
+  "section_headers": [
+    "Material- & Oberflächeneigenschaften",
+    "Farbe, Optik & Gestalt",
+    "Maße, Volumen- & Gewichtsangaben",
+    "Ausstattungsmerkmale & Funktionen",
+    "Technische Daten",
+    "Anwendungs-, Montage- & Verarbeitungshinweise",
+    "Beständigkeit",
+    "Rechtliche Hinweise & Normen",
+    "Weiterführende Produktinformationen"
+  ]
+}
