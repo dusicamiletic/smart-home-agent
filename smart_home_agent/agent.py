@@ -114,7 +114,7 @@ def _is_hub(product: Product) -> bool:
     `None` alone. Two signals, not one, because a hub-category product whose
     title happens not to match `_HUB_NOUNS` would otherwise fall through the
     data layer's own title-only gate."""
-    return upsell._category_group(product.category) == "hub" or bool(_HUB_NOUNS.search(product.title))
+    return upsell.category_group(product.category) == "hub" or bool(_HUB_NOUNS.search(product.title))
 
 
 def _serialize_product(product: Product) -> dict:

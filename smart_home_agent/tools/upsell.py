@@ -90,7 +90,7 @@ _ADJACENT_GROUPS: dict[str, tuple[str, ...]] = {
 }
 
 
-def _category_group(category: str) -> str:
+def category_group(category: str) -> str:
     for group, keywords in _GROUP_KEYWORDS:
         if any(keyword in category for keyword in keywords):
             return group
@@ -166,7 +166,7 @@ def _companion_offer(
 ) -> dict | None:
     if ecosystem is None:
         return None
-    anchor_group = _category_group(anchor.category)
+    anchor_group = category_group(anchor.category)
     target_groups = _ADJACENT_GROUPS.get(anchor_group, ())
     if not target_groups:
         return None
@@ -179,7 +179,7 @@ def _companion_offer(
             continue
         if candidate.is_smart is not True:
             continue
-        if _category_group(candidate.category) not in target_groups:
+        if category_group(candidate.category) not in target_groups:
             continue
         if not _within_budget(candidate.price, max_budget):
             continue
@@ -197,7 +197,7 @@ def _companion_offer(
         chosen.title,
         chosen.price,
         reason=f"Also works with your {anchor.brand} setup: {chosen.title}.",
-        grounded_in=f"same brand ({chosen.brand}), category group {anchor_group} -> {_category_group(chosen.category)}",
+        grounded_in=f"same brand ({chosen.brand}), category group {anchor_group} -> {category_group(chosen.category)}",
         url=chosen.url,
         image_url=chosen.image or None,
     )

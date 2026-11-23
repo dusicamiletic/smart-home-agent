@@ -4,7 +4,7 @@ from pathlib import Path
 from scripts.build_catalog import build_product, resolve_hub_references
 from smart_home_agent.catalog.models import Product
 from smart_home_agent.catalog.normalize import Confidence, Ecosystem, EcosystemSignal
-from smart_home_agent.tools.upsell import suggest_upsell
+from smart_home_agent.tools.upsell import category_group, suggest_upsell
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"
 
@@ -105,3 +105,10 @@ def test_every_non_none_offer_has_a_non_empty_grounded_in():
     assert companion_result["offer"] is not None
     assert companion_result["offer_type"] == "companion"
     assert companion_result["grounded_in"]
+
+
+def test_category_group_classifies_known_category_keywords():
+    assert category_group("smart-home-thermostate") == "heating"
+    assert category_group("led-lampen") == "lighting_indoor"
+    assert category_group("smart-home-starter-kits-gateways") == "hub"
+    assert category_group("some-unmapped-category") == "other"
